@@ -37,6 +37,7 @@
 /rpcs3/Debug
 /rpcs3/Release
 /llvm_build
+/llvmlibs
 /Vulkan/Vulkan-build
 /Vulkan/glslang-build
 
