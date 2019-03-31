@@ -81,6 +81,7 @@ enum class video_renderer
 	vulkan,
 #ifdef _MSC_VER
 	dx12,
+	dx12e
 #endif
 };
 

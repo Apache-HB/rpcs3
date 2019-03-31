@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "D3D12Utils.h"
 #include "Emu/Memory/vm.h"
@@ -10,6 +10,63 @@
 #include "d3dx12.h"
 #include "D3D12MemoryHelpers.h"
 
+using namespace Microsoft::WRL;
+
+class DX12Render : public GSRender
+{
+	using Super = GSRender;
+
+	using Device           = ID3D12Device;
+	using Queue            = ID3D12CommandQueue;
+	using SwapChain        = IDXGISwapChain;
+	using Resource         = ID3D12Resource;
+	using DescriptorHeap   = ID3D12DescriptorHeap;
+	using Fence            = ID3D12Fence;
+	using RootSignature    = ID3D12RootSignature;
+	using PipelineState    = ID3D12PipelineState;
+	using CommandAllocator = ID3D12CommandAllocator;
+	using CommandList      = ID3D12GraphicsCommandList;
+	using Viewport         = D3D12_VIEWPORT;
+	using Rect             = D3D12_RECT;
+
+public:
+	u64 get_cycles() override final
+	{
+		return thread_ctrl::get_cycles(static_cast<named_thread<DX12Render>&>(*this));
+	}
+
+	DX12Render();
+	~DX12Render();
+protected:
+	//overriden methods
+	void begin() override;
+	void end() override;
+	void emit_geometry(u32 index) override;
+
+	void on_init_thread() override;
+	void on_exit() override;
+	bool do_method(u32 id, u32 arg) override;
+	void flip(int buffer) override;
+
+private:
+	//rpcs3 components
+
+	//this draw context has very little use aside from making the fps counter work
+	//as far as i can tell anyway, im probably missing something
+	draw_context_t m_context;
+
+
+	//DX12 components
+
+	//stuff is rendered to the viewport
+	Viewport m_viewport;
+
+	//the scissor is used for culling objects outside the viewports range
+	Rect m_scissor;
+
+	//this is the swapchain used for rendering
+	ComPtr<SwapChain> m_swapchain;
+};
 
 /**
  * TODO: If you want to improve this backend, a small list of things that are unimplemented atm :
@@ -81,12 +138,12 @@ private:
 
 	struct shader
 	{
-		ID3D12PipelineState *pso;
-		ID3D12RootSignature *root_signature;
-		ID3D12Resource *vertex_buffer;
-		ID3D12DescriptorHeap *texture_descriptor_heap;
-		ID3D12DescriptorHeap *sampler_descriptor_heap;
-		void init(ID3D12Device *device, ID3D12CommandQueue *gfx_command_queue);
+		ID3D12PipelineState* pso;
+		ID3D12RootSignature* root_signature;
+		ID3D12Resource* vertex_buffer;
+		ID3D12DescriptorHeap* texture_descriptor_heap;
+		ID3D12DescriptorHeap* sampler_descriptor_heap;
+		void init(ID3D12Device* device, ID3D12CommandQueue* gfx_command_queue);
 		void release();
 	};
 
@@ -97,8 +154,8 @@ private:
 	shader m_output_scaling_pass;
 
 	resource_storage m_per_frame_storage[2];
-	resource_storage &get_current_resource_storage();
-	resource_storage &get_non_current_resource_storage();
+	resource_storage& get_current_resource_storage();
+	resource_storage& get_non_current_resource_storage();
 
 	// Textures, constants, index and vertex buffers storage
 	d3d12_data_heap m_buffer_data;
@@ -113,7 +170,7 @@ private:
 	INT m_descriptor_stride_samplers;
 
 	// Used to fill unused texture slot
-	ID3D12Resource *m_dummy_texture;
+	ID3D12Resource* m_dummy_texture;
 
 	// Currently used shader resources / samplers descriptor
 	u32 m_current_transform_constants_buffer_descriptor_id;
@@ -131,14 +188,14 @@ private:
 
 	void load_program();
 
-	void set_rtt_and_ds(ID3D12GraphicsCommandList *command_list);
+	void set_rtt_and_ds(ID3D12GraphicsCommandList* command_list);
 
 	/**
 	 * Create vertex and index buffers (if needed) and set them to cmdlist.
 	 * Non native primitive type are emulated by index buffers expansion.
 	 * Returns whether the draw call is indexed or not and the vertex count to draw.
-	*/
-	std::tuple<bool, size_t, std::vector<D3D12_SHADER_RESOURCE_VIEW_DESC> > upload_and_set_vertex_index_data(ID3D12GraphicsCommandList *command_list);
+	 */
+	std::tuple<bool, size_t, std::vector<D3D12_SHADER_RESOURCE_VIEW_DESC>> upload_and_set_vertex_index_data(ID3D12GraphicsCommandList* command_list);
 
 	void upload_and_bind_scale_offset_matrix(size_t descriptor_index);
 	void upload_and_bind_vertex_shader_constants(size_t descriptor_index);
@@ -149,14 +206,14 @@ private:
 	 * Create necessary resource view/sampler descriptors in the per frame storage struct.
 	 * If the count of enabled texture is below texture_count, fills with dummy texture and sampler.
 	 */
-	void upload_textures(ID3D12GraphicsCommandList *command_list, size_t texture_count);
+	void upload_textures(ID3D12GraphicsCommandList* command_list, size_t texture_count);
 
 	/**
 	 * Creates render target if necessary.
 	 * Populate cmdlist with render target state change (from RTT to generic read for previous rtt,
 	 * from generic to rtt for rtt in cache).
 	 */
-	void prepare_render_targets(ID3D12GraphicsCommandList *command_list);
+	void prepare_render_targets(ID3D12GraphicsCommandList* command_list);
 
 	/**
 	 * Render D2D overlay if enabled on top of the backbuffer.

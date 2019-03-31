@@ -127,6 +127,7 @@ void fmt_class_string<video_renderer>::format(std::string& out, u64 arg)
 		case video_renderer::vulkan: return "Vulkan";
 #ifdef _MSC_VER
 		case video_renderer::dx12: return "D3D12";
+		case video_renderer::dx12e: return "DX12 (Experimental)";
 #endif
 		}
 

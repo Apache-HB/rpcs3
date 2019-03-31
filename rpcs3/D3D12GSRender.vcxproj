@@ -72,6 +72,7 @@
     <ClInclude Include="Emu\RSX\D3D12\D3D12RenderTargetSets.h" />
     <ClInclude Include="Emu\RSX\D3D12\D3D12VertexProgramDecompiler.h" />
     <ClInclude Include="Emu\RSX\D3D12\d3dx12.h" />
+    <ClInclude Include="Emu\RSX\D3D12\DX12Render.h" />
     <ClInclude Include="stdafx_d3d12.h" />
   </ItemGroup>
   <ItemGroup>
@@ -87,6 +88,7 @@
     <ClCompile Include="Emu\RSX\D3D12\D3D12Texture.cpp" />
     <ClCompile Include="Emu\RSX\D3D12\D3D12Utils.cpp" />
     <ClCompile Include="Emu\RSX\D3D12\D3D12VertexProgramDecompiler.cpp" />
+    <ClCompile Include="Emu\RSX\D3D12\DX12Render.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="emucore.vcxproj">

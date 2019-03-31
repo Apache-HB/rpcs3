@@ -40,6 +40,7 @@
 #include "Emu/Audio/AL/OpenALBackend.h"
 #ifdef _MSC_VER
 #include "Emu/RSX/D3D12/D3D12GSRender.h"
+#include "Emu/RSX/D3D12/DX12Render.h"
 #endif
 #if defined(_WIN32) || defined(HAVE_VULKAN)
 #include "Emu/RSX/VK/VKGSRender.h"
@@ -229,6 +230,9 @@ void rpcs3_app::InitializeCallbacks()
 			frame = new gs_frame("DirectX 12", frame_geometry, RPCS3MainWin->GetAppIcon(), guiSettings);
 			break;
 		}
+		case video_renderer::dx12e:
+			frame = new gs_frame("DirectX 12 Experimental", frame_geometry, RPCS3MainWin->GetAppIcon(), guiSettings);
+			break;
 #endif
 		default:
 			fmt::throw_exception("Invalid video renderer: %s" HERE, type);
@@ -248,7 +252,8 @@ void rpcs3_app::InitializeCallbacks()
 		case video_renderer::vulkan: return std::make_shared<named_thread<VKGSRender>>("rsx::thread");
 #endif
 #ifdef _MSC_VER
-		case video_renderer::dx12: return std::make_shared<named_thread<D3D12GSRender>>("rsx::thread");
+		case video_renderer::dx12: return std::make_shared<named_thread<DX12Render>>("rsx::thread");
+		case video_renderer::dx12e: return std::make_shared<named_thread<DX12Render>>("rsx::thread");
 #endif
 		default: fmt::throw_exception("Invalid video renderer: %s" HERE, type);
 		}
