@@ -15,31 +15,87 @@
 #include "D3D12Formats.h"
 #include "../rsx_methods.h"
 
+#define ENSURE_RESULT(Expr, Msg) { const auto HR = (Expr); if (FAILED(HR)) fmt::throw_exception("HRESULT = %s" HERE, get_hresult_message(HR)); }
+
+namespace
+{
+	HMODULE DX12, DX11, DXCC;
+
+	PFN_D3D12_CREATE_DEVICE DX12CreateDevice;
+	PFN_D3D12_GET_DEBUG_INTERFACE DX12GetDebugInterface;
+	PFN_D3D12_SERIALIZE_ROOT_SIGNATURE DX12SerializeRootSignature;
+	PFN_D3D11ON12_CREATE_DEVICE DX11On12CreateDevice;
+	pD3DCompile DXCompile;
+
+	void LoadModules()
+	{
+		DX12 = LoadLibrary(TEXT("d3d12.dll"));
+		DX11 = LoadLibrary(TEXT("d3d11.dll"));
+		DXCC = LoadLibrary(TEXT("d3dcompiler_47.dll"));
+
+		LOG_TRACE(RSX, "Loaded DirectX dlls");
+
+		DX12CreateDevice = (PFN_D3D12_CREATE_DEVICE)GetProcAddress(DX12, "D3D12CreateDevice");
+		DX12GetDebugInterface = (PFN_D3D12_GET_DEBUG_INTERFACE)GetProcAddress(DX12, "D3D12GetDebugInterface");
+		DX12SerializeRootSignature = (PFN_D3D12_SERIALIZE_ROOT_SIGNATURE)GetProcAddress(DX12, "D3D12SerializeRootSignature");
+		DX11On12CreateDevice = (PFN_D3D11ON12_CREATE_DEVICE)GetProcAddress(DX11, "D3D11On12CreateDevice");
+		DXCompile = (pD3DCompile)GetProcAddress(DXCC, "D3DCompile");
+
+		LOG_TRACE(RSX, "Loaded DirectX functions from dlls");
+	}
+
+	void UnloadModules()
+	{
+		FreeLibrary(DX12);
+		FreeLibrary(DX11);
+		FreeLibrary(DXCC);
+
+		LOG_TRACE(RSX, "Free'd DirectX dlls");
+	}
+}
+
+std::vector<DX12Render::Adapter*> DX12Render::Adapters()
+{
+	Adapter* Adapt;
+	std::vector<Adapter*> AdaptList;
+	IDXGIFactory* Factory = nullptr;
+
+	if (FAILED(CreateDXGIFactory(IID_PPV_ARGS(&Factory))))
+		return AdaptList;
+
+	for (UINT I = 0; Factory->EnumAdapters(I, &Adapt) != DXGI_ERROR_NOT_FOUND; I++)
+		AdaptList.push_back(Adapt);
+
+	if (Factory)
+		Factory->Release();
+
+	return AdaptList;
+}
+
 DX12Render::DX12Render()
     : GSRender()
 {
+	LoadModules();
 }
 
 DX12Render::~DX12Render()
 {
-
+	UnloadModules();
 }
 
 void DX12Render::begin()
 {
-	LOG_NOTICE(RSX, "Begin");
 	rsx::thread::begin();
 }
+
 void DX12Render::end()
 {
-	LOG_NOTICE(RSX, "End");
-
 	//push geometry
 	u32 index = 0;
 	rsx::method_registers.current_draw_clause.begin();
 	do
 	{
-		emit_geometry(index);
+		emit_geometry(index++);
 	} while (rsx::method_registers.current_draw_clause.next());
 
 	rsx::thread::end();

@@ -26,6 +26,7 @@ class DX12Render : public GSRender
 	using PipelineState    = ID3D12PipelineState;
 	using CommandAllocator = ID3D12CommandAllocator;
 	using CommandList      = ID3D12GraphicsCommandList;
+	using Adapter          = IDXGIAdapter;
 	using Viewport         = D3D12_VIEWPORT;
 	using Rect             = D3D12_RECT;
 
@@ -47,6 +48,10 @@ protected:
 	void on_exit() override;
 	bool do_method(u32 id, u32 arg) override;
 	void flip(int buffer) override;
+
+private:
+	//helper functions
+	static std::vector<Adapter*> Adapters();
 
 private:
 	//rpcs3 components
