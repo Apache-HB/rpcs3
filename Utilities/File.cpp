@@ -1,4 +1,4 @@
-#include "File.h"
+﻿#include "File.h"
 #include "mutex.h"
 #include "StrFmt.h"
 #include "BEType.h"
@@ -1385,7 +1385,7 @@ const std::string& fs::get_config_dir()
 
 #ifdef _WIN32
 		wchar_t buf[32768];
-		if (GetEnvironmentVariable(L"RPCS3_CONFIG_DIR", buf, std::size(buf)) - 1 >= std::size(buf) - 1 &&
+		if (GetEnvironmentVariable(L"RPCS3_CONFIG_DIR", buf, static_cast<DWORD>(std::size(buf))) - 1 >= std::size(buf) - 1 &&
 			GetModuleFileName(NULL, buf, std::size(buf)) - 1 >= std::size(buf) - 1)
 		{
 			MessageBoxA(0, fmt::format("GetModuleFileName() failed: error %u.", GetLastError()).c_str(), "fs::get_config_dir()", MB_ICONERROR);

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <map>
 #include <functional>
@@ -90,6 +90,7 @@ namespace vm
 	// Get reservation status for further atomic update: last update timestamp
 	inline atomic_t<u64>& reservation_acquire(u32 addr, u32 size)
 	{
+		(void)size;
 		// Access reservation info: stamp and the lock bit
 		return reinterpret_cast<atomic_t<u64>*>(g_reservations)[addr / 128];
 	}
@@ -97,6 +98,7 @@ namespace vm
 	// Update reservation status
 	inline void reservation_update(u32 addr, u32 size, bool lsb = false)
 	{
+		(void)lsb;
 		// Update reservation info with new timestamp
 		reservation_acquire(addr, size) += 2;
 	}
@@ -104,6 +106,7 @@ namespace vm
 	// Get reservation sync variable
 	inline cond_x16& reservation_notifier(u32 addr, u32 size)
 	{
+		(void)size;
 		return *reinterpret_cast<cond_x16*>(g_reservations2 + addr / 128 * 8);
 	}
 
@@ -221,6 +224,7 @@ namespace vm
 	{
 		static vm::addr_t cast(u32 addr, const char* loc)
 		{
+			(void)loc;
 			return static_cast<vm::addr_t>(addr);
 		}
 
@@ -235,6 +239,7 @@ namespace vm
 	{
 		static vm::addr_t cast(u64 addr, const char* loc)
 		{
+			(void)loc;
 			return static_cast<vm::addr_t>(static_cast<u32>(addr));
 		}
 

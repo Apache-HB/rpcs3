@@ -1,17 +1,18 @@
-#pragma once
+﻿#pragma once
 
 #include "types.h"
 
-template<typename T, uint N>
+template <typename T, uint N>
 struct bf_base
 {
-	using type = T;
+	using type  = T;
 	using vtype = simple_t<type>;
 	using utype = typename std::make_unsigned<vtype>::type;
 
 	// Datatype bitsize
-	static constexpr uint bitmax = sizeof(T) * 8; static_assert(N - 1 < bitmax, "bf_base<> error: N out of bounds");
-	
+	static constexpr uint bitmax = sizeof(T) * 8;
+	static_assert(N - 1 < bitmax, "bf_base<> error: N out of bounds");
+
 	// Field bitsize
 	static constexpr uint bitsize = N;
 
@@ -26,15 +27,16 @@ protected:
 };
 
 // Bitfield accessor (N bits from I position, 0 is LSB)
-template<typename T, uint I, uint N>
+template <typename T, uint I, uint N>
 struct bf_t : bf_base<T, N>
 {
-	using type = typename bf_t::type;
+	using type  = typename bf_t::type;
 	using vtype = typename bf_t::vtype;
 	using utype = typename bf_t::utype;
 
 	// Field offset
-	static constexpr uint bitpos = I; static_assert(bitpos + N <= bf_t::bitmax, "bf_t<> error: I out of bounds");
+	static constexpr uint bitpos = I;
+	static_assert(bitpos + N <= bf_t::bitmax, "bf_t<> error: I out of bounds");
 
 	// Get bitmask of size N, at I pos
 	static constexpr utype data_mask()
@@ -43,13 +45,13 @@ struct bf_t : bf_base<T, N>
 	}
 
 	// Bitfield extraction helper
-	template<typename T2, typename = void>
+	template <typename T2, typename = void>
 	struct extract_impl
 	{
 		static_assert(!sizeof(T2), "bf_t<> error: Invalid type");
 	};
 
-	template<typename T2>
+	template <typename T2>
 	struct extract_impl<T2, std::enable_if_t<std::is_unsigned<T2>::value>>
 	{
 		// Load unsigned value
@@ -59,7 +61,7 @@ struct bf_t : bf_base<T, N>
 		}
 	};
 
-	template<typename T2>
+	template <typename T2>
 	struct extract_impl<T2, std::enable_if_t<std::is_signed<T2>::value>>
 	{
 		// Load signed value (sign-extended)
@@ -100,64 +102,64 @@ struct bf_t : bf_base<T, N>
 	}
 
 	// Store bitfield value
-	bf_t& operator =(vtype value)
+	bf_t& operator=(vtype value)
 	{
 		this->m_data = static_cast<vtype>((this->m_data & ~data_mask()) | insert(value));
 		return *this;
 	}
 
-	vtype operator ++(int)
+	vtype operator++(int)
 	{
 		utype result = *this;
-		*this = static_cast<vtype>(result + 1);
+		*this        = static_cast<vtype>(result + 1);
 		return result;
 	}
 
-	bf_t& operator ++()
+	bf_t& operator++()
 	{
 		return *this = *this + 1;
 	}
 
-	vtype operator --(int)
+	vtype operator--(int)
 	{
 		utype result = *this;
-		*this = static_cast<vtype>(result - 1);
+		*this        = static_cast<vtype>(result - 1);
 		return result;
 	}
 
-	bf_t& operator --()
+	bf_t& operator--()
 	{
 		return *this = *this - 1;
 	}
 
-	bf_t& operator +=(vtype right)
+	bf_t& operator+=(vtype right)
 	{
 		return *this = *this + right;
 	}
 
-	bf_t& operator -=(vtype right)
+	bf_t& operator-=(vtype right)
 	{
 		return *this = *this - right;
 	}
 
-	bf_t& operator *=(vtype right)
+	bf_t& operator*=(vtype right)
 	{
 		return *this = *this * right;
 	}
 
-	bf_t& operator &=(vtype right)
+	bf_t& operator&=(vtype right)
 	{
 		this->m_data &= static_cast<vtype>((static_cast<utype>(right) & bf_t::vmask) << bitpos);
 		return *this;
 	}
 
-	bf_t& operator |=(vtype right)
+	bf_t& operator|=(vtype right)
 	{
 		this->m_data |= static_cast<vtype>((static_cast<utype>(right) & bf_t::vmask) << bitpos);
 		return *this;
 	}
 
-	bf_t& operator ^=(vtype right)
+	bf_t& operator^=(vtype right)
 	{
 		this->m_data ^= static_cast<vtype>((static_cast<utype>(right) & bf_t::vmask) << bitpos);
 		return *this;
@@ -165,10 +167,10 @@ struct bf_t : bf_base<T, N>
 };
 
 // Field pack (concatenated from left to right)
-template<typename F = void, typename... Fields>
+template <typename F = void, typename... Fields>
 struct cf_t : bf_base<typename F::type, F::bitsize + cf_t<Fields...>::bitsize>
 {
-	using type = typename cf_t::type;
+	using type  = typename cf_t::type;
 	using vtype = typename cf_t::vtype;
 	using utype = typename cf_t::utype;
 
@@ -197,7 +199,7 @@ struct cf_t : bf_base<typename F::type, F::bitsize + cf_t<Fields...>::bitsize>
 	}
 
 	// Store value
-	cf_t& operator =(vtype value)
+	cf_t& operator=(vtype value)
 	{
 		this->m_data = (this->m_data & ~data_mask()) | insert(value);
 		return *this;
@@ -205,7 +207,7 @@ struct cf_t : bf_base<typename F::type, F::bitsize + cf_t<Fields...>::bitsize>
 };
 
 // Empty field pack (recursion terminator)
-template<>
+template <>
 struct cf_t<void>
 {
 	static constexpr uint bitsize = 0;
@@ -215,24 +217,26 @@ struct cf_t<void>
 		return 0;
 	}
 
-	template<typename T>
+	template <typename T>
 	static constexpr auto extract(const T& data) -> decltype(+T())
 	{
+		(void)data;
 		return 0;
 	}
 
-	template<typename T>
+	template <typename T>
 	static constexpr T insert(T value)
 	{
+		(void)value;
 		return 0;
 	}
 };
 
 // Fixed field (provides constant values in field pack)
-template<typename T, T V, uint N>
+template <typename T, T V, uint N>
 struct ff_t : bf_base<T, N>
 {
-	using type = typename ff_t::type;
+	using type  = typename ff_t::type;
 	using vtype = typename ff_t::vtype;
 
 	// Return constant value
@@ -249,7 +253,7 @@ struct ff_t : bf_base<T, N>
 	}
 };
 
-template<typename T, uint I, uint N>
+template <typename T, uint I, uint N>
 struct fmt_unveil<bf_t<T, I, N>, void>
 {
 	using type = typename fmt_unveil<simple_t<T>>::type;
@@ -260,7 +264,7 @@ struct fmt_unveil<bf_t<T, I, N>, void>
 	}
 };
 
-template<typename F, typename... Fields>
+template <typename F, typename... Fields>
 struct fmt_unveil<cf_t<F, Fields...>, void>
 {
 	using type = typename fmt_unveil<simple_t<typename F::type>>::type;
@@ -271,7 +275,7 @@ struct fmt_unveil<cf_t<F, Fields...>, void>
 	}
 };
 
-template<typename T, T V, uint N>
+template <typename T, T V, uint N>
 struct fmt_unveil<ff_t<T, V, N>, void>
 {
 	using type = typename fmt_unveil<simple_t<T>>::type;

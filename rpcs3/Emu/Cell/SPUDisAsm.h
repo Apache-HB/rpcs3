@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "PPCDisAsm.h"
 #include "SPUOpcodes.h"
@@ -144,6 +144,7 @@ public:
 	}
 	void LNOP(spu_opcode_t op)
 	{
+		(void)op;
 		DisAsm("lnop");
 	}
 	void SYNC(spu_opcode_t op)
@@ -152,6 +153,7 @@ public:
 	}
 	void DSYNC(spu_opcode_t op)
 	{
+		(void)op;
 		DisAsm("dsync");
 	}
 	void MFSPR(spu_opcode_t op)

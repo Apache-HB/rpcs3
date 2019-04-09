@@ -8,12 +8,14 @@
 // Helper function
 constexpr const char* ppu_select_name(const char* name, u32 id)
 {
+	(void)id;
 	return name;
 }
 
 // Helper function
 constexpr const char* ppu_select_name(const char* name, const char* orig_name)
 {
+	(void)name;
 	return orig_name;
 }
 
@@ -56,7 +58,7 @@ struct ppu_static_variable
 {
 	const char* name;
 	vm::gvar<void>* var; // Pointer to variable address storage
-	void(*init)(); // Variable initialization function
+	void (*init)();      // Variable initialization function
 	u32 size;
 	u32 align;
 	const char* type;
@@ -83,14 +85,14 @@ public:
 public:
 	ppu_static_module(const char* name);
 
-	ppu_static_module(const char* name, void(*init)())
-		: ppu_static_module(name)
+	ppu_static_module(const char* name, void (*init)())
+	    : ppu_static_module(name)
 	{
 		init();
 	}
 
-	ppu_static_module(const char* name, void(*init)(ppu_static_module* _this))
-		: ppu_static_module(name)
+	ppu_static_module(const char* name, void (*init)(ppu_static_module* _this))
+	    : ppu_static_module(name)
 	{
 		init(this);
 	}

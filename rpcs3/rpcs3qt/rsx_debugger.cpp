@@ -1,4 +1,4 @@
-
+﻿
 #include "rsx_debugger.h"
 #include "qt_utils.h"
 
@@ -763,7 +763,7 @@ void rsx_debugger::GetFlags()
 	}
 
 	m_list_flags->clearContents();
-	int i=0;
+	//int i=0;
 
 #define LIST_FLAGS_ADD(name, value) \
 	m_list_flags->setItem(i, 0, new QTableWidgetItem(qstr(name))); m_list_flags->setItem(i, 1, new QTableWidgetItem(qstr(value ? "Enabled" : "Disabled"))); i++;
@@ -800,7 +800,7 @@ void rsx_debugger::GetLightning()
 	}
 
 	m_list_lightning->clearContents();
-	int i=0;
+	//int i=0;
 
 #define LIST_LIGHTNING_ADD(name, value) \
 	m_list_lightning->setItem(i, 0, new QTableWidgetItem(qstr(name))); m_list_lightning->setItem(i, 1, new QTableWidgetItem(qstr(value))); i++;
@@ -862,7 +862,7 @@ void rsx_debugger::GetSettings()
 	}
 
 	m_list_settings->clearContents();
-	int i=0;
+	//int i=0;
 
 #define LIST_SETTINGS_ADD(name, value) \
 	m_list_settings->setItem(i, 0, new QTableWidgetItem(qstr(name))); m_list_settings->setItem(i, 1, new QTableWidgetItem(qstr(value))); i++;
